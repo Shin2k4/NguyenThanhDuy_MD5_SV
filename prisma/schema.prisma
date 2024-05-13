@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  userName  String     @unique @db.VarChar(20)
+  password  String     @db.Char(255)
+  role      Role       @default(USER)
+  addresses Address[]
+  profile   Profile?
+  walet     Float      @default(0)
+  avatar    String
+  createdAt String
+  updatedAt String
+  Messages  Messages[]
+  discordId String?
+  Cart      Cart[]
+  Build     Bill[]
+}
+
+model Cart {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int
+  createdAt String
+  updatedAt String
+  total     Int
+  User      User    @relation(fields: [userId], references: [id])
+  Product   Product @relation(fields: [productId], references: [id])
+}
+
+model Bill {
+  id        Int    @id @default(autoincrement())
+  productId String
+  userId    Int
+  quantity  Int
+  createdAt String
+  updatedAt String
+  User      User   @relation(fields: [userId], references: [id])
+  Total     Int
+}
+
+model Profile {
+  id     Int    @id @default(autoincrement())
+  avatar String
+  user   User   @relation(fields: [userId], references: [id])
+  userId Int    @unique
+}
+
+model Admin {
+  id       Int        @id @default(autoincrement())
+  userName String     @unique
+  password String
+  email    String     @unique
+  messages Messages[]
+}
+
+enum ChatType {
+  TEXT
+  VIDEO
+  IMG
+  LINK
+}
+
+model Messages {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  user     User     @relation(fields: [userId], references: [id])
+  adminId  Int?
+  admin    Admin?   @relation(fields: [adminId], references: [id])
+  content  String
+  createAt String
+  type     ChatType
+}
+
+model Address {
+  id           Int        @id @default(autoincrement())
+  createdAt    String
+  updatedAt    String
+  provinceId   Int
+  provinceName String
+  districtName String
+  wartId       Int
+  wartName     String
+  title        String
+  des          String
+  categories   Category[]
+  User         User?      @relation(fields: [userId], references: [id])
+  userId       Int?
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  addresses Address[]
+  product   Product[]
+  createdAt String
+  updatedAt String
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  price       Float
+  description String
+  quantity    Int
+  createdAt   String
+  updatedAt   String
+  images      String
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  Cart        Cart[]
+}
